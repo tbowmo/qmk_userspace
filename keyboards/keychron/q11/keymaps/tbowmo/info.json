@@ -1,0 +1,13 @@
+{
+    "dynamic_keymap": {
+        "layer_count": 3
+    },
+    "caps_word": {
+        "double_tap_shift_turns_on": true
+    },
+    "features": {
+        "caps_word": true,
+        "via": true
+    }
+
+}
