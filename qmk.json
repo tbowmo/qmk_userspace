@@ -1,6 +1,7 @@
 {
     "userspace_version": "1.0",
     "build_targets": [
-        ["keychron/q11/iso_encoder", "tbowmo"]
+        ["keychron/q11/iso_encoder", "tbowmo"],
+        ["keychron/k8/rgb", "tbowmo"]
     ]
 }
