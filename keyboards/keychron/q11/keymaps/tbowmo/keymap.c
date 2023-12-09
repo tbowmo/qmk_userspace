@@ -38,18 +38,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_FN1] = LAYOUT_92_iso(
         RGB_TOG,  _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FLXP,  RGB_VAD,   RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,    KC_VOLU,  _______,  _______,  RGB_TOG,
-        _______,  _______,  _______,  _______,  _______,  _______,  _______,   _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
-        _______,  RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,   _______,  _______,  _______,  _______,  _______,  _______,    _______,                      _______,
-        _______,  _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,   _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
-        _______,  _______,  _______,  _______,  _______,  _______,  _______,   _______,  NK_TOGG,  _______,  _______,  _______,  _______,              _______,  _______,
-        _______,  _______,  _______,  _______,  _______,            _______,                       _______,            _______,  _______,    _______,  _______,  _______,  _______),
+        MC_6,     _______,  _______,  _______,  _______,  _______,  _______,   _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
+        MC_7,     RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,   _______,  _______,  _______,  _______,  _______,  _______,    _______,                      _______,
+        MC_8,     _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,   _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
+        MC_9,     _______,  _______,  _______,  _______,  _______,  _______,   _______,  NK_TOGG,  _______,  _______,  _______,  _______,              _______,  _______,
+        MC_10,    _______,  _______,  _______,  _______,            _______,                       _______,            _______,  _______,    _______,  _______,  _______,  _______),
+
     [_FN2] = LAYOUT_92_iso(
         RGB_TOG,  _______,   KC_F13,   KC_F14,   KC_F15,   KC_F16,   KC_F17,    KC_F18,   KC_F19,   KC_F20,   KC_F21,   KC_F22,   KC_F23,     KC_F24,   _______,  _______,  RGB_TOG,
-        _______,  _______,  _______,  _______,  _______,  _______,  _______,   _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
-        _______,  RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,   _______,  _______,  _______,  _______,  _______,  _______,    _______,                      _______,
-        _______,  _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,   _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
-        _______,  _______,  _______,  _______,  _______,  _______,  _______,   _______,  NK_TOGG,  _______,  _______,  _______,  _______,              _______,  _______,
-        _______,  _______,  _______,  _______,  _______,            _______,                       _______,            _______,  _______,    _______,  _______,  _______,  _______),
+        MC_6___,  _______,  _______,  _______,  _______,  _______,  _______,   _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
+        MC_7___,  RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,   _______,  _______,  _______,  _______,  _______,  _______,    _______,                      _______,
+        MC_8___,  _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,   _______,  _______,  _______,  _______,  _______,  _______,    _______,  _______,            _______,
+        MC_9___,  _______,  _______,  _______,  _______,  _______,  _______,   _______,  NK_TOGG,  _______,  _______,  _______,  _______,              _______,  _______,
+        MC_10__,  _______,  _______,  _______,  _______,            _______,                       _______,            _______,  _______,    _______,  _______,  _______,  _______),
 };
 
 #if defined(ENCODER_ENABLE) && defined(ENCODER_MAP_ENABLE)
@@ -60,19 +61,48 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif // ENCODER_MAP_ENABLE
 
-bool dip_switch_update_user(uint8_t index, bool active) {
-    switch (index) {
-        case 0: // macos/windows toggle
-            if(active) { // Mac mode
-            } else { // Windows mode
+/** sponge bob writing **/
+uint16_t repeat_mode;
+uint8_t prev_upper;
+uint8_t prev_lower;
+bool uppercase;
+bool spongeBob = false;
+
+bool process_record_spongebob(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == KC_ENTER && record->event.pressed) {
+        uppercase = false;
+        return true;
+    }
+
+    if (uppercase == false && record->event.pressed )  {
+        uppercase = true;
+        return true;
+    }
+
+    if((KC_A <= keycode) && (keycode <= KC_Z)) {
+        if ( record->event.pressed ) {
+            bool press = rand() % 2;
+
+            if (prev_upper > 2) {           // if more than 3 lower's in a row print upper
+                prev_upper = 0;
+                press = false;
+            } else if (prev_lower > 2) {    // if more than 3 upper's in a row print lower
+                prev_lower = 0;
+                press = true;
             }
-            return false;
-        case 1:
-            return false;
+            if (press) {
+                prev_upper++;
+                tap_code16(S(keycode));
+                clear_mods();
+            } else {
+                prev_lower++;
+                tap_code16(keycode);
+            }
+        }
+        return false;
     }
     return true;
 }
-
 
 bool caps_word_press_user(uint16_t keycode) {
     switch (keycode) {
@@ -94,4 +124,18 @@ bool caps_word_press_user(uint16_t keycode) {
         default:
             return false;  // Deactivate Caps Word.
     }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (spongeBob) {
+        return process_record_spongebob(keycode, record);
+    }
+    return true;
+}
+
+bool dip_switch_update_user(uint8_t index, bool active) {
+    if (index == 0) { // macos/windows toggle switch
+          spongeBob = active;
+    }
+    return false;
 }
