@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef BLUETOOTH_ENABLE
 #include "iton_bt.h"
 #include "outputselect.h"
-#endif
+#endif // BLUETOOTH_ENABLE
 
 enum tbowmo_layer_names {
   _BASE,
@@ -213,7 +213,7 @@ bool rgb_matrix_indicators_user(void) {
 
     return true;
 }
-#endif
+#endif // BLUETOOTH_ENABLE
 
 bool dip_switch_update_user(uint8_t index, bool active) {
     switch (index) {
@@ -237,7 +237,7 @@ bool dip_switch_update_user(uint8_t index, bool active) {
                 current_profile_state = STATE_CONNECTING;
                 defer_exec(100, led_blinking, NULL);
             }
-#endif
+#endif // BLUETOOTH_ENABLE
             return false;
     }
     return true;
@@ -283,7 +283,7 @@ void keyboard_post_init_user(void) {
     //debug_keyboard=true;
     //debug_mouse=true;
 }
-#endif
+#endif // BLUETOOTH_ENABLE
 
 
 bool caps_word_press_user(uint16_t keycode) {
