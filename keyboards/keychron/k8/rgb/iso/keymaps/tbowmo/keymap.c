@@ -15,23 +15,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include QMK_KEYBOARD_H
+#include "tbowmo.h"
+#include "spongebob.h"
 
 #ifdef BLUETOOTH_ENABLE
 #include "iton_bt.h"
 #include "outputselect.h"
 #endif // BLUETOOTH_ENABLE
 
-enum tbowmo_layer_names {
-  _BASE,
-  _FN1,
-  _FN2,
-};
-
 #define KC_FN1 LT(_FN1, KC_APP)
 #define KC_FN2 LT(_FN2, KC_SCRL)
 #define KC_FN1_ALT LT(_FN1, KC_CAPS)
-#define KC_TASK LGUI(KC_TAB)        // Task viewer
-#define KC_FLXP LGUI(KC_E)          // Windows file explorer
 
 enum bt_keys {
   KC_BT1 = SAFE_RANGE,
@@ -218,9 +212,7 @@ bool rgb_matrix_indicators_user(void) {
 bool dip_switch_update_user(uint8_t index, bool active) {
     switch (index) {
         case 0: // macos/windows toggle
-            if(active) { // Mac mode
-            } else { // Windows mode
-            }
+            spongebob_state(active);
             return false;
         case 1:
 #ifdef BLUETOOTH_ENABLE
@@ -244,8 +236,8 @@ bool dip_switch_update_user(uint8_t index, bool active) {
 }
 
 
-#ifdef BLUETOOTH_ENABLE
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+#ifdef BLUETOOTH_ENABLE
     if (bluetooth_enabled) {
         if (record->event.pressed) {
             switch (keycode) {
@@ -270,9 +262,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
         }
     }
-    return true;
+#endif
+    return process_record_spongebob(keycode, record);
 }
 
+#ifdef BLUETOOTH_ENABLE
 void keyboard_post_init_user(void) {
     kb_config.raw = eeconfig_read_user();
     if (kb_config.bt_profile >= PROFILE_USB) {
@@ -284,26 +278,3 @@ void keyboard_post_init_user(void) {
     //debug_mouse=true;
 }
 #endif // BLUETOOTH_ENABLE
-
-
-bool caps_word_press_user(uint16_t keycode) {
-    switch (keycode) {
-        // Keycodes that continue Caps Word, with shift applied.
-        case KC_A ... KC_Z:
-        case KC_LBRC: // nordic iso layout national key
-        case KC_SCLN: // ^^
-        case KC_QUOT: // ^^
-        case KC_MINS:
-        case KC_SLSH: // Nordic iso minus / underscore
-            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
-            return true;
-
-        // Keycodes that continue Caps Word, without shifting.
-        case KC_1 ... KC_0:
-        case KC_BSPC:
-        case KC_DEL:
-            return true;
-        default:
-            return false;  // Deactivate Caps Word.
-    }
-}

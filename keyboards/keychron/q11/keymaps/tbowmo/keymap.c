@@ -1,4 +1,4 @@
-/* Copyright 2023 @ Keychron (https://www.keychron.com)
+/* Copyright 2023 @ tbowmo
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +15,12 @@
  */
 
 #include QMK_KEYBOARD_H
+#include "tbowmo.h"
+#include "spongebob.h"
 
-enum layers{
-    _BASE,
-    _FN1,
-    _FN2,
-};
-
-#define KC_TASK LGUI(KC_TAB)
-#define KC_FLXP LGUI(KC_E)
 #define KC_FN1 LT(_FN1, KC_APP)
 #define KC_FN2 LT(_FN2, KC_APP)
-#define ZOOM_IN RCTL(KC_MINS)
-#define ZOOM_OUT RCTL(KC_SLSH)
-#define ZOOM_RESET RCTL(KC_0)
+
 
 enum custom_keycodes {
     SEL_WORD = QK_USER,
@@ -72,71 +64,6 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif // ENCODER_MAP_ENABLE
 
-/** sponge bob writing **/
-uint16_t repeat_mode;
-uint8_t prev_upper;
-uint8_t prev_lower;
-bool uppercase;
-bool spongeBob = false;
-
-bool process_record_spongebob(uint16_t keycode, keyrecord_t *record) {
-    if (keycode == KC_ENTER && record->event.pressed) {
-        uppercase = false;
-        return true;
-    }
-
-    if (uppercase == false && record->event.pressed )  {
-        uppercase = true;
-        return true;
-    }
-
-    if((KC_A <= keycode) && (keycode <= KC_Z)) {
-        if ( record->event.pressed ) {
-            bool press = rand() % 2;
-
-            if (prev_upper > 2) {           // if more than 3 lower's in a row print upper
-                prev_upper = 0;
-                press = false;
-            } else if (prev_lower > 2) {    // if more than 3 upper's in a row print lower
-                prev_lower = 0;
-
-                press = true;
-            }
-            if (press) {
-                prev_upper++;
-                tap_code16(S(keycode));
-                clear_mods();
-            } else {
-                prev_lower++;
-                tap_code16(keycode);
-            }
-        }
-        return false;
-    }
-    return true;
-}
-
-bool caps_word_press_user(uint16_t keycode) {
-    switch (keycode) {
-        // Keycodes that continue Caps Word, with shift applied.
-        case KC_A ... KC_Z:
-        case KC_LBRC: // nordic iso layout national key
-        case KC_SCLN: // ^^
-        case KC_QUOT: // ^^
-        case KC_MINS:
-        case KC_SLSH: // Nordic iso minus / underscore
-            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
-            return true;
-
-        // Keycodes that continue Caps Word, without shifting.
-        case KC_1 ... KC_0:
-        case KC_BSPC:
-        case KC_DEL:
-            return true;
-        default:
-            return false;  // Deactivate Caps Word.
-    }
-}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch(keycode) {
@@ -152,15 +79,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
     }
 
-    if (spongeBob) {
-        return process_record_spongebob(keycode, record);
-    }
-    return true;
+    return process_record_spongebob(keycode, record);
 }
 
 bool dip_switch_update_user(uint8_t index, bool active) {
     if (index == 0) { // macos/windows toggle switch
-          spongeBob = active;
+        spongebob_state(active);
+        return false;
     }
-    return false;
+    return true;
 }
