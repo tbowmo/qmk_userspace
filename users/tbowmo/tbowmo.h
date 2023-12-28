@@ -3,8 +3,6 @@
 
 #include "quantum.h"
 
-void my_custom_function(void);
-
 enum layers{
     _BASE,
     _FN1,
