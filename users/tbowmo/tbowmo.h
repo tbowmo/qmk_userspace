@@ -1,5 +1,4 @@
-#ifndef USERSPACE
-#define USERSPACE
+#pragma once
 
 #include "quantum.h"
 
@@ -14,5 +13,3 @@ enum layers{
 #define ZOOM_IN RCTL(KC_MINS)
 #define ZOOM_OUT RCTL(KC_SLSH)
 #define ZOOM_RESET RCTL(KC_0)
-
-#endif // USERSPACE
